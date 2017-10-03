@@ -5,74 +5,113 @@ const router = express.Router();
 // our coffee data
 const coffeeList = require('../models/coffeeList.model');
 
-// GET HTTP method to /coffeeList
-router.get('/', (req, res) => {
-    debugger
+// GET HTTP methods to /coffeeList
+router.get('/all', (req, res) => {
     coffeeList.getAllLists((err, lists) => {
         if (err) {
-            res.json({
+            return res.json({
                 success: false,
                 message: `Failed to load all lists. Error: ${err}`
             });
         }
-        else {
-            res.write(JSON.stringify({
-                success: true,
-                lists
-            }, null, 2));
 
-            res.end();
-        }
+        res.write(JSON.stringify({
+            success: true,
+            lists
+        }, null, 2));
+        res.end();
     });
 });
 
-// POST HTTP method to /coffeeList
-router.post('/', (req, res, next) => {
+// POST HTTP methods to /coffeeList
+router.post('/add', (req, res, next) => {
     let newList = new coffeeList({
-        title: req.body.title,
+        ownerId: req.body.ownerId,
         description: req.body.description,
-        category: req.body.category
+        coffees: req.body.coffees
     });
+
     coffeeList.addList(newList, (err, list) => {
         if (err) {
-            res.json({
+            return res.json({
                 success: false,
                 message: `Failed to create a new list. Error: ${err}`
             });
         }
-        else  {
+
+        res.json({
+            success:true,
+            message: "Added successfully."
+        });
+    });
+});
+
+router.post('/addTo', (req, res, next) => {
+    let id = req.body.id;
+    let coffees = req.body.coffees;
+
+    coffeeList.addToList(id, coffees, (err, list) => {
+        if (err) {
             res.json({
-                success:true,
-                message: "Added successfully."
+                success: false,
+                message: `Failed to add to the list. Error: ${err}`
             });
+        } else if (list) {
+            res.write(JSON.stringify({
+                success: true,
+                message: "Added coffees successfully",
+                list
+            }));
+            res.end();
+        } else {
+            res.json({ success: false });
         }
     });
 });
 
-
-// DELETE HTTP method to /coffeeList
-// accepts an id
-router.delete('/:id', (req, res, next) => {
-  //access the parameter which is the id of the item to be deleted
+// DELETE HTTP methods to /coffeeList
+router.delete('/delete/:id', (req, res, next) => {
+    //access the parameter which is the id of the item to be deleted
     let id = req.params.id;
-  //Call the model method deleteListById
+
     coffeeList.deleteListById(id, (err, list) => {
         if (err) {
             res.json({
                 success: false,
                 message: `Failed to delete the list. Error: ${err}`
             });
-        }
-        else if (list) {
+        } else if (list) {
             res.json({
                 success: true,
                 message: "Deleted successfully"
             });
-        }
-        else {
+        } else {
             res.json({ success: false });
         }
     })
+});
+
+router.delete('/deleteFrom', (req, res, next) => {
+    let id = req.body.id;
+    let coffeeIdx = req.body.idx;
+
+    coffeeList.deleteFromList(id, coffeeIdx, (err, list) => {
+        if (err) {
+            res.json({
+                success: false,
+                message: `Failed to remove from the list. Error: ${err}`
+            });
+        } else if (list) {
+            res.write(JSON.stringify({
+                success: true,
+                message: "Removed from list successfully",
+                list
+            }));
+            res.end();
+        } else {
+            res.json({ success: false });
+        }
+    });
 });
 
 module.exports = router;

@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // routing (to index and through controllers)
 app.get('/', (req, res) => {
-    res.send("Invalid page");
+    res.send("Invalid request");
 });
 
 app.use('/coffeeList', coffeeList);
