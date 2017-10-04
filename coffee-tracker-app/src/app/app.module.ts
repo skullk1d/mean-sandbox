@@ -15,6 +15,7 @@ import { CoffeeListViewComponent } from './coffee-list-view/coffee-list-view.com
 
 import { ListService } from './services/list.service';
 import { UserService } from './services/user.service';
+import { UserAddComponent } from './user-add/user-add.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
@@ -28,7 +29,8 @@ const appRoutes: Routes = [
     HomePageComponent,
     UserProfileComponent,
     UserProfileSelectComponent,
-    CoffeeListViewComponent
+    CoffeeListViewComponent,
+    UserAddComponent
   ],
   imports: [
     BrowserModule,

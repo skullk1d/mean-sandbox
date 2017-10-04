@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { User } from '../models/User'
 
 import 'rxjs/add/operator/map';
@@ -8,10 +9,21 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class UserService {
 
-    constructor(private http: Http) { }
+    constructor(private http: Http) {}
 
     // TODO: config this
     private serverApi= 'http://localhost:3000/user';
+
+    // // Observable string sources
+    // private emitChangeSource = new Subject<any>();
+
+    // // Observable string streams
+    // changeEmitted$ = this.emitChangeSource.asObservable();
+
+    // // Service message commands
+    // emitChange(change: any) {
+    //     this.emitChangeSource.next(change);
+    // }
 
     // GET
     public getAllUsers(): Observable<User[]> {
@@ -28,7 +40,7 @@ export class UserService {
       return this.http.get(URI)
         .map(res => res.json())
         .map(res => <User>res.user);
-  }
+    }
 
     // POST
     public addUser(user: User) {

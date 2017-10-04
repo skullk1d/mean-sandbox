@@ -1,7 +1,7 @@
 <div *ngIf="user$ | async as user">
   Profile for {{user.displayName}}
 
-  <form>
+  <form (ngSubmit)="onSubmit()">
       <md-form-field>
         <input mdInput placeholder="First name" [value]="user.firstName" [(ngModel)]="editFirstName" name="first">
       </md-form-field>
@@ -9,6 +9,6 @@
           <input mdInput placeholder="Last name" [value]="user.lastName" [(ngModel)]="editLastName" name="last">
       </md-form-field>
 
-      <a md-button (click)="onUpdateUser()">Save</a>
+      <button md-button type="submit">Save</button>
   </form>
 </div>

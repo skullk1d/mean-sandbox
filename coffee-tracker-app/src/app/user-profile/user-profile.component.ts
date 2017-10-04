@@ -16,8 +16,8 @@ export class UserProfileComponent implements OnInit {
   private selectedUserId: string = '';
   private activeUser: User;
 
-  editFirstName = '';
-  editLastName = '';
+  editFirstName: string = '';
+  editLastName: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -38,7 +38,7 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  onUpdateUser() {
+  onSubmit() {
     console.log('onUpdateUser', this.editFirstName, this.editLastName)
 
     if (this.editFirstName !== this.activeUser.firstName) {

@@ -1,0 +1,14 @@
+<div>
+    Register a new user
+
+    <form (ngSubmit)="onSubmit()">
+        <md-form-field>
+          <input mdInput placeholder="First name" [(ngModel)]="newFirstName" name="first">
+        </md-form-field>
+        <md-form-field>
+            <input mdInput placeholder="Last name" [(ngModel)]="newLastName" name="last">
+        </md-form-field>
+
+        <button md-button type="submit">Add</button>
+    </form>
+  </div>
