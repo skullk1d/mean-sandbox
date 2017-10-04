@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 
 // controllers
 const coffeeList = require('./controllers/coffeeList.controller');
+const user = require('./controllers/user.controller');
 
 // database
 const config = require('./config/database');
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/coffeeList', coffeeList);
+app.use('/user', user);
 
 // listen
 app.listen(port, () => {

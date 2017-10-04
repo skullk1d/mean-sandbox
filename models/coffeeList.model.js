@@ -28,7 +28,7 @@ module.exports.getAllLists = (callback) => {
 };
 
 // get a specific list
-module.exports.getList = (listId, callback) => {
+module.exports.getListById = (listId, callback) => {
     let query = { _id: listId };
 
     CoffeeList.find(query, callback);

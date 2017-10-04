@@ -23,6 +23,25 @@ router.get('/all', (req, res) => {
     });
 });
 
+router.get('/:id', (req, res) => {
+    let id = req.params.id;
+
+    coffeeList.getListById(id, (err, list) => {
+        if (err) {
+            return res.json({
+                success: false,
+                message: `Failed to load list. Error: ${err}`
+            });
+        }
+
+        res.write(JSON.stringify({
+            success: true,
+            list
+        }, null, 2));
+        res.end();
+    });
+});
+
 // POST HTTP methods to /coffeeList
 router.post('/add', (req, res, next) => {
     let newList = new coffeeList({
@@ -40,7 +59,7 @@ router.post('/add', (req, res, next) => {
         }
 
         res.json({
-            success:true,
+            success: true,
             message: "Added successfully."
         });
     });
