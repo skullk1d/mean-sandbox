@@ -21,7 +21,7 @@ export class UserProfileComponent implements OnInit {
   private updateUserSubscription: Subscription;
   private deleteUserSubscription: Subscription;
 
-  activeUser$ : Observable<User>;
+  activeUser$ : Observable<any>;
 
   editFirstName: string = '';
   editLastName: string = '';
@@ -39,11 +39,13 @@ export class UserProfileComponent implements OnInit {
     this.activeUser$ = this.route.paramMap.switchMap((params: ParamMap) => {
       this.selectedUserId = params.get('id');
       return this.sharedService.getUserById(this.selectedUserId);
-    });
-
-    this.activeUser$ = this.activeUser$.map(res => res[0]);
+    }).map(res => res.user);
 
     this.activeUser$.subscribe(user => {
+      if (!user) {
+        return;
+      }
+
       // init our model of edited names when we get user
       this.editFirstName = user.firstName;
       this.editLastName = user.lastName;

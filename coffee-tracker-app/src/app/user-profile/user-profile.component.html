@@ -1,4 +1,4 @@
-<div *ngIf="activeUser$ | async as user">
+<div *ngIf="activeUser$ | async as user; else errorMessage">
   Profile for {{user.displayName}}
 
   <form (ngSubmit)="onSubmit()">
@@ -13,3 +13,5 @@
       <button md-button type="button" (click)="requestDeleteUser(user._id)">DELETE</button>
   </form>
 </div>
+
+<ng-template #errorMessage>Cannot find user {{selectedUserId}}</ng-template>

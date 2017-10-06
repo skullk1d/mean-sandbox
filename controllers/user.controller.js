@@ -36,7 +36,7 @@ router.get('/:id', (req, res) => {
 
         res.write(JSON.stringify({
             success: true,
-            user: resUser
+            user: resUser[0]
         }, null, 2));
         res.end();
     });

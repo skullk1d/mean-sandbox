@@ -23,12 +23,12 @@ export class UserService {
           .map(res => <User[]>res.users);
     }
 
-    public getUserById(userId): Observable<User> {
+    public getUserById(userId): Observable<any> {
       let URI = `${this.serverApi}/${userId}`;
 
       return this.http.get(URI)
-        .map(res => res.json())
-        .map(res => <User>res.user);
+        .map(res => res.json());
+        //.map(res => <User>res.user);
     }
 
     // POST
