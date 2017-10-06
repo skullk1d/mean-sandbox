@@ -53,7 +53,7 @@ module.exports.updateUser = (updatedUser, callback) => {
         }
 
         // auto-update display name and everything that changed
-        Object.assign(res[0], updatedUser);
+        Object.assign({}, res[0], updatedUser);
         res[0].displayName = `${res[0].firstName} ${res[0].lastName}`
         res[0].save(callback);
     });

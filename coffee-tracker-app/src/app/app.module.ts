@@ -21,13 +21,15 @@ import { UserAddComponent } from './user-add/user-add.component';
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
   { path: 'profile/:id', component: UserProfileComponent },
-  { path: 'coffees/:id', component: CoffeeListViewComponent }
+  { path: 'coffees/:id', component: CoffeeListViewComponent },
+  { path: 'register', component: UserAddComponent }
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
     HomePageComponent,
+    UserAddComponent,
     UserProfileComponent,
     UserProfileSelectComponent,
     CoffeeListViewComponent,

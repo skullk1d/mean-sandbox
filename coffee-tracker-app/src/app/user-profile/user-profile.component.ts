@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { UserService } from '../services/user.service';
+import { SharedService } from '../services/shared.service';
 import { User } from '../models/User';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/switchMap';
 
 @Component({
@@ -17,6 +18,8 @@ export class UserProfileComponent implements OnInit {
   // state
   private selectedUserId: string = '';
   private activeUser: User;
+  private updateUserSubscription: Subscription;
+  private deleteUserSubscription: Subscription;
 
   activeUser$ : Observable<User>;
 
@@ -26,34 +29,55 @@ export class UserProfileComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private userServ: UserService
-  ) { }
-
-  user$: Observable<User>;
+    private sharedService: SharedService
+  ) {
+    this.updateUserSubscription = this.sharedService.getSubscription('updateUser').subscribe(this.onUpdateUser.bind(this));
+    this.deleteUserSubscription = this.sharedService.getSubscription('deleteUser').subscribe(this.onDeleteUser.bind(this));
+  }
 
   ngOnInit() {
-    this.user$ = this.route.paramMap.switchMap((params: ParamMap) => {
+    this.activeUser$ = this.route.paramMap.switchMap((params: ParamMap) => {
       this.selectedUserId = params.get('id');
-      return this.userServ.getUserById(this.selectedUserId);
+      return this.sharedService.getUserById(this.selectedUserId);
     });
 
-    this.user$.subscribe(res => {
-      this.activeUser = res[0];
-    });
+    this.activeUser$ = this.activeUser$.map(res => res[0]);
 
-    this.activeUser$ = this.user$.map(res => res[0]);
+    this.activeUser$.subscribe(user => {
+      // init our model of edited names when we get user
+      this.editFirstName = user.firstName;
+      this.editLastName = user.lastName;
+    });
   }
 
   onSubmit() {
-    console.log('onUpdateUser', this.editFirstName, this.editLastName)
+    // send updated props with id as query, update active user subscriptions to updates from now on
+    this.activeUser$ = this.sharedService.updateUser({
+      _id: this.selectedUserId,
+      firstName: this.editFirstName,
+      lastName: this.editLastName
+    }).map(res => res.updatedUser);
+  }
 
-    if (this.editFirstName !== this.activeUser.firstName) {
-      this.activeUser.firstName = this.editFirstName;
-    }
-    if (this.editLastName !== this.activeUser.lastName) {
-      this.activeUser.lastName = this.editLastName;
-    }
+  requestDeleteUser(userId) {
+    this.sharedService.deleteUser(userId);
+  }
 
-    this.userServ.updateUser(this.activeUser);
+  // subscriptions
+  onDeleteUser(res) {
+    if (res.success) {
+      console.log('Deleted user', res.userId);
+      // route to home page
+      this.router.navigate(['/']);
+    }
+  }
+
+  onUpdateUser(res) {
+    if (res.success) {
+      this.editFirstName = res.updatedUser.firstName;
+      this.editLastName = res.updatedUser.lastName;
+
+      console.log(this, 'Updated user', res.updatedUser);
+    }
   }
 }

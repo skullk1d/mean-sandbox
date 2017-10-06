@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { User } from '../models/User';
 import { SharedService } from '../services/shared.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -16,9 +17,15 @@ export class UserAddComponent implements OnInit {
   private newUser: User;
   private addUserSubscription: Subscription;
 
-  constructor(private sharedService: SharedService) {
-    this.addUserSubscription = this.sharedService.getAddUserSubscription().subscribe(res => {
+  constructor(
+    private sharedService: SharedService,
+    private router: Router
+  ) {
+    this.addUserSubscription = this.sharedService.getSubscription('addUser').subscribe(res => {
       // do stuff based on success/fail of add user
+      if (res.success) {
+        this.router.navigate(['/']);
+      }
     });
   }
 

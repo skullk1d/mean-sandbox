@@ -100,7 +100,8 @@ router.delete('/delete/:id', (req, res, next) => {
         } else if (user) {
             res.json({
                 success: true,
-                message: "Deleted successfully"
+                message: "Deleted successfully",
+                userId: id
             });
         } else {
             res.json({ success: false });

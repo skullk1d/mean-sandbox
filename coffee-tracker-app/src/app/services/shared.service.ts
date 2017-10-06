@@ -15,76 +15,67 @@ export class SharedService {
 
     // all components using this service can stay in sync with latest user data by subscribing to these
     // Observable string sources
-    // TODO: all subscriptions should be of type <any> including success bool and user payload
-    private addUserStream: Subject<any> = new Subject<any>();
-    private allUsersStream: Subject<User[]> = new Subject<User[]>();
+    // TODO: all subscriptions should be of type <any> including success bool and request payload
+    // TODO: expose enum?
+    private streams = {
+      allUsers: new Subject<User[]>(),
+      addUser: new Subject<any>(),
+      deleteUser: new Subject<any>(),
+      updateUser: new Subject<any>(),
+      getUser: new Subject<any>()
+    };
 
-    public getAllUsersSubscription() {
-      // provide subscription to anyone who wants to sync with all user data
-      return this.allUsersStream.asObservable();
+    // return observables with initial result to invoker and also stream to all subscribers
+    public getSubscription(streamName: string): Observable<any> {
+      // return the stream or, if not found, warn but do not break
+      // provide subscription to anyone who wants to sync with user data
+      const stream = this.streams[streamName] || new Subject<any>();
+
+      if (!stream) {
+        console.warn(streamName, 'Stream unavailable');
+      }
+
+      return stream.asObservable();
     }
 
-    public getAllUsers() {
-      // return observable with initial result to invoker and also stream to all subscribers
-      this.userService.getAllUsers().subscribe(response =>
-        this.allUsersStream.next(response)
+    public getAllUsers(): Observable<User[]> {
+      this.userService.getAllUsers().subscribe(res =>
+        this.streams.allUsers.next(res)
       );
+
+      return this.streams.allUsers.asObservable();
     }
 
-    public getAddUserSubscription() {
-      return this.addUserStream.asObservable();
-    }
-
-    public addUser(user: User) {
-      this.userService.addUser(user).subscribe(response =>
-        this.addUserStream.next(response)
+    public addUser(user: User): Observable<any> {
+      this.userService.addUser(user).subscribe(res =>
+        this.streams.addUser.next(res)
       );
+
+      return this.streams.addUser.asObservable();
     }
 
-//     public getUserById(userId): Observable<User> {
-//       let URI = `${this.serverApi}/${userId}`;
+    public deleteUser(userId: string): Observable<any> {
+      this.userService.deleteUser(userId).subscribe(res =>
+        this.streams.deleteUser.next(res)
+      );
 
-//       return this.http.get(URI)
-//         .map(res => res.json())
-//         .map(res => <User>res.user);
-//     }
+      return this.streams.deleteUser.asObservable();
+    }
 
-//     // POST
-//     public addUser(user: User): Observable<any> {
-//         let URI = `${this.serverApi}/add`;
-//         let headers = new Headers;
-//         let body = JSON.stringify({
-//           firstName: user.firstName,
-//           lastName: user.lastName
-//         });
+    public updateUser(user: User): Observable<any> {
+      this.userService.updateUser(user).subscribe(res =>
+        this.streams.updateUser.next(res)
+      );
 
-//         headers.append('Content-Type', 'application/json');
+      return this.streams.updateUser.asObservable();
+    }
 
-//         return this.http.post(URI, body, { headers })
-//           .map(res => res.json())
-//           .map(res => res.newUser);
-//     }
+    public getUserById(userId: string): Observable<any> {
+      // makes request, notifies subscribers, and returns Observable
+      this.userService.getUserById(userId).subscribe(res =>
+        this.streams.getUser.next(res)
+      );
 
-//     public updateUser(updatedUser: User) {
-//       // expect updatedUser to have _id
-//       let URI = `${this.serverApi}/update`;
-//       let headers = new Headers;
-//       let body = JSON.stringify(updatedUser);
-
-//       headers.append('Content-Type', 'application/json');
-
-//       return this.http.post(URI, body , { headers })
-//         .map(res => res.json());
-//     }
-
-//     // DELETE
-//     public deleteUser(userId: string) {
-//         let URI = `${this.serverApi}/${userId}`;
-//         let headers = new Headers;
-
-//         headers.append('Content-Type', 'application/json');
-
-//         return this.http.delete(URI, { headers })
-//           .map(res => res.json());
-//     }
+      return this.streams.getUser.asObservable();
+    }
 }

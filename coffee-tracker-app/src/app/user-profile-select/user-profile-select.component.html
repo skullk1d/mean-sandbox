@@ -1,4 +1,9 @@
-<md-select (change)="onSelectUser(selectedUserId)" placeholder="Select user" [(ngModel)]="selectedUserId" name="user">
+<md-select
+  placeholder="Select user"
+  name="user"
+  (change)="onSelectUser(selectedUserId)"
+  [(ngModel)]="selectedUserId"
+>
   <md-option *ngFor="let user of users" [value]="user._id">
     {{user.displayName}}
   </md-option>

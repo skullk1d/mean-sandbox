@@ -1,14 +1,15 @@
-<div *ngIf="user$ | async as user">
+<div *ngIf="activeUser$ | async as user">
   Profile for {{user.displayName}}
 
   <form (ngSubmit)="onSubmit()">
       <md-form-field>
-        <input mdInput placeholder="First name" [value]="user.firstName" [(ngModel)]="editFirstName" name="first">
+        <input mdInput placeholder="First name" [(ngModel)]="editFirstName" name="first">
       </md-form-field>
       <md-form-field>
-          <input mdInput placeholder="Last name" [value]="user.lastName" [(ngModel)]="editLastName" name="last">
+          <input mdInput placeholder="Last name" [(ngModel)]="editLastName" name="last">
       </md-form-field>
 
       <button md-button type="submit">Save</button>
+      <button md-button type="button" (click)="requestDeleteUser(user._id)">DELETE</button>
   </form>
 </div>

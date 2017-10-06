@@ -59,8 +59,8 @@ export class UserService {
     }
 
     // DELETE
-    public deleteUser(userId: string) {
-        let URI = `${this.serverApi}/${userId}`;
+    public deleteUser(userId: string): Observable<any> {
+        let URI = `${this.serverApi}/delete/${userId}`;
         let headers = new Headers;
 
         headers.append('Content-Type', 'application/json');
