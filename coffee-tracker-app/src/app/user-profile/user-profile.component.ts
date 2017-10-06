@@ -11,10 +11,14 @@ import 'rxjs/add/operator/switchMap';
   styleUrls: ['./user-profile.component.css']
 })
 export class UserProfileComponent implements OnInit {
+  // requests and displays the active user's data, builds a dirty user object and requests to update a user's data
+  // requests to delete a user
 
   // state
   private selectedUserId: string = '';
   private activeUser: User;
+
+  activeUser$ : Observable<User>;
 
   editFirstName: string = '';
   editLastName: string = '';
@@ -36,6 +40,8 @@ export class UserProfileComponent implements OnInit {
     this.user$.subscribe(res => {
       this.activeUser = res[0];
     });
+
+    this.activeUser$ = this.user$.map(res => res[0]);
   }
 
   onSubmit() {

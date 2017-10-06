@@ -60,7 +60,8 @@ router.post('/add', (req, res, next) => {
 
         res.json({
             success: true,
-            message: "Added successfully."
+            message: "Added successfully.",
+            newUser: user
         });
     });
 });

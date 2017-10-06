@@ -8,22 +8,11 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class UserService {
-
+  // API interface for User
     constructor(private http: Http) {}
 
     // TODO: config this
     private serverApi= 'http://localhost:3000/user';
-
-    // // Observable string sources
-    // private emitChangeSource = new Subject<any>();
-
-    // // Observable string streams
-    // changeEmitted$ = this.emitChangeSource.asObservable();
-
-    // // Service message commands
-    // emitChange(change: any) {
-    //     this.emitChangeSource.next(change);
-    // }
 
     // GET
     public getAllUsers(): Observable<User[]> {
@@ -43,7 +32,7 @@ export class UserService {
     }
 
     // POST
-    public addUser(user: User) {
+    public addUser(user: User): Observable<any> {
         let URI = `${this.serverApi}/add`;
         let headers = new Headers;
         let body = JSON.stringify({
@@ -53,11 +42,11 @@ export class UserService {
 
         headers.append('Content-Type', 'application/json');
 
-        return this.http.post(URI, body , { headers })
+        return this.http.post(URI, body, { headers })
           .map(res => res.json());
     }
 
-    public updateUser(updatedUser: User) {
+    public updateUser(updatedUser: User): Observable<any> {
       // expect updatedUser to have _id
       let URI = `${this.serverApi}/update`;
       let headers = new Headers;

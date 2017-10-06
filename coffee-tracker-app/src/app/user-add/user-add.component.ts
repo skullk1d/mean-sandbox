@@ -1,6 +1,7 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { User } from '../models/User';
-import { UserService } from '../services/user.service';
+import { SharedService } from '../services/shared.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-user-add',
@@ -9,11 +10,17 @@ import { UserService } from '../services/user.service';
 })
 
 export class UserAddComponent implements OnInit {
-  @Output() addUser: EventEmitter<User> = new EventEmitter<User>();
+  // builds a new user and requests to add a user
+  // @Input() public addUserStream: Subject<User>;
 
   private newUser: User;
+  private addUserSubscription: Subscription;
 
-  constructor(private userServ: UserService) { }
+  constructor(private sharedService: SharedService) {
+    this.addUserSubscription = this.sharedService.getAddUserSubscription().subscribe(res => {
+      // do stuff based on success/fail of add user
+    });
+  }
 
   newFirstName: string = '';
   newLastName: string = '';
@@ -28,11 +35,11 @@ export class UserAddComponent implements OnInit {
   }
 
   public onSubmit() {
-    this.userServ.addUser(this.newUser).subscribe(response => {
-        if (response.success) {
-          // update the parent components
-          this.addUser.emit(this.newUser);
-        }
-    },);
+    Object.assign(this.newUser, {
+      firstName: this.newFirstName,
+      lastName: this.newLastName
+    });
+
+    this.sharedService.addUser(this.newUser);
   }
 }

@@ -16,6 +16,9 @@ const config = require('./config/database');
 const app = express();
 const port = 3000;
 
+// deprecated promises, use es6
+mongoose.Promise = global.Promise;
+
 // connect to database
 mongoose.connect(config.database, { useMongoClient: true });
 
