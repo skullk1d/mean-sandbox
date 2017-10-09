@@ -4,9 +4,9 @@
 
     <app-user-profile-select (selectRequest)="selectUser($event)" [selectedUserId]="selectedUserId" ></app-user-profile-select>
 
-    <a md-button [routerLink]="['/profile', selectedUserId]">Profile</a>
-    <a md-button [routerLink]="['/coffees', selectedUserId]">Coffees</a>
-    <a md-button [routerLink]="['/register']">Register</a>
+    <a md-button [routerLink]="['profile', selectedUserId]">Profile</a>
+    <a md-button [routerLink]="['coffees', selectedUserId]">Coffees</a>
+    <a md-button [routerLink]="['register']">Register</a>
 
   </md-toolbar>
 

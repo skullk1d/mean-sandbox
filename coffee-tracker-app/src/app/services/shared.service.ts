@@ -31,7 +31,7 @@ export class SharedService {
       // provide subscription to anyone who wants to sync with user data
       const stream = this.streams[streamName] || new Subject<any>();
 
-      if (!stream) {
+      if (!this.streams[streamName]) {
         console.warn(streamName, 'Stream unavailable');
       }
 

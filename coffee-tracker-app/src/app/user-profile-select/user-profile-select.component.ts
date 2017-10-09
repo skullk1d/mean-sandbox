@@ -72,7 +72,7 @@ export class UserProfileSelectComponent {
     if (res.success) {
       let userToReplace = this.users.find(user => user._id === res.updatedUser._id);
 
-      userToReplace = res.updatedUser;
+      Object.assign(userToReplace, res.updatedUser);
     }
   }
 
