@@ -18,10 +18,13 @@ export class UserProfileComponent implements OnInit {
   // state
   private selectedUserId: string = '';
   private activeUser: User;
-  private updateUserSubscription: Subscription;
-  private deleteUserSubscription: Subscription;
+  private subscriptions: Array<[string, Function]> = [
+    ['getUser', this.onGetUser],
+    ['deleteUser', this.onDeleteUser],
+    ['updateUser', this.onUpdateUser]
+  ]
 
-  activeUser$ : Observable<any>;
+  // activeUser$: Observable<any>;
 
   editFirstName: string = '';
   editLastName: string = '';
@@ -31,34 +34,27 @@ export class UserProfileComponent implements OnInit {
     private router: Router,
     private sharedService: SharedService
   ) {
-    this.updateUserSubscription = this.sharedService.getSubscription('updateUser').subscribe(this.onUpdateUser.bind(this));
-    this.deleteUserSubscription = this.sharedService.getSubscription('deleteUser').subscribe(this.onDeleteUser.bind(this));
+    this.subscriptions.forEach((streamAndHandler: [string, Function]) => {
+      this.sharedService.getSubscription(streamAndHandler[0]).subscribe(streamAndHandler[1].bind(this));
+    });
   }
 
   ngOnInit() {
-    this.activeUser$ = this.route.paramMap.switchMap((params: ParamMap) => {
-      this.selectedUserId = params.get('id');
-      return this.sharedService.getUserById(this.selectedUserId);
-    }).map(res => res.user);
-
-    this.activeUser$.subscribe(user => {
-      if (!user) {
-        return;
-      }
-
-      // init our model of edited names when we get user
-      this.editFirstName = user.firstName;
-      this.editLastName = user.lastName;
-    });
+    // if we landed here without active user data, get it ourselves by "subscribing" to url params
+    // TODO: explore RxJs BehaviorSubjects to get initial value efficiently
+    this.route.paramMap.switchMap((params: ParamMap) => {
+      this.selectedUserId = params.get('userId');
+      return this.sharedService.getUserById(this.selectedUserId); // must return Observable
+    }).subscribe(this.onGetUser.bind(this));
   }
 
   onSubmit() {
     // send updated props with id as query, update active user subscriptions to updates from now on
-    this.activeUser$ = this.sharedService.updateUser({
+    this.requestUpdateUser({
       _id: this.selectedUserId,
       firstName: this.editFirstName,
       lastName: this.editLastName
-    }).map(res => res.updatedUser);
+    });
   }
 
   requestDeleteUser(userId) {
@@ -74,12 +70,28 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
+  requestUpdateUser(updatedUser) {
+    this.sharedService.updateUser(updatedUser);
+  }
+
   onUpdateUser(res) {
     if (res.success) {
-      this.editFirstName = res.updatedUser.firstName;
-      this.editLastName = res.updatedUser.lastName;
+      this.activeUser = res.updatedUser;
+      this.editFirstName = this.activeUser.firstName;
+      this.editLastName = this.activeUser.lastName;
 
       console.log(this, 'Updated user', res.updatedUser);
+    }
+  }
+
+  onGetUser(res) {
+    if (res.success) {
+      // init our model of edited names when we get user
+      this.activeUser = res.user;
+      this.editFirstName = this.activeUser.firstName;
+      this.editLastName = this.activeUser.lastName;
+
+      this.selectedUserId = this.activeUser._id;
     }
   }
 }

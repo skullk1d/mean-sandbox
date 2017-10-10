@@ -1,3 +1,14 @@
-<div *ngIf="user$ | async as user">
-  Coffees for {{user.displayName}}
+<div *ngIf="activeUser">Coffees for {{activeUser.displayName}}
+  <button md-button type="button" (click)="requestAddCoffee(activeUser._id)">Add Coffee Break</button>
+</div>
+
+
+<ng-template #errorMessage>There are no coffees for user {{selectedUserId}}, or the user doesn't exist</ng-template>
+
+<div *ngIf="activeCoffeeList; else errorMessage">
+  <ul>
+    <li *ngFor="let coffee of activeCoffeeList.coffees">
+      {{coffee}}
+    </li>
+  </ul>
 </div>

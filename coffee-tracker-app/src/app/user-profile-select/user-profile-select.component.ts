@@ -14,9 +14,11 @@ export class UserProfileSelectComponent {
 
   // state
   private users: User[] = [];
+  private activeUser: User;
 
   private subscriptions: Array<[string, Function]> = [
     ['allUsers', this.onGetAllUsers],
+    ['getUser', this.onGetUser],
     ['addUser', this.onAddUser],
     ['deleteUser', this.onDeleteUser],
     ['updateUser', this.onUpdateUser]
@@ -44,7 +46,7 @@ export class UserProfileSelectComponent {
 
   // events
   onSelectUser(userId: string) {
-    this.selectRequest.emit(userId)
+    this.selectRequest.emit(userId);
   }
 
   // subscriptions
@@ -73,6 +75,15 @@ export class UserProfileSelectComponent {
       let userToReplace = this.users.find(user => user._id === res.updatedUser._id);
 
       Object.assign(userToReplace, res.updatedUser);
+      this.activeUser = userToReplace;
+    }
+  }
+
+  onGetUser(res) {
+    // generally if someone outside of the selecter gets a user, auto select here
+    if (res.success) {
+      this.activeUser = res.user;
+      this.selectedUserId = this.activeUser._id;
     }
   }
 

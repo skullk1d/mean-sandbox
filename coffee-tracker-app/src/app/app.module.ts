@@ -20,8 +20,8 @@ import { UserAddComponent } from './user-add/user-add.component';
 
 const appRoutes: Routes = [
   { path: '', component: HomePageComponent },
-  { path: 'profile/:id', component: UserProfileComponent },
-  { path: 'coffees/:id', component: CoffeeListViewComponent },
+  { path: 'profile/:userId', component: UserProfileComponent },
+  { path: 'coffees/:userId', component: CoffeeListViewComponent },
   { path: 'register', component: UserAddComponent }
 ];
 

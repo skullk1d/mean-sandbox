@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+import { Router, ActivatedRoute, Params, RoutesRecognized } from '@angular/router';
 import { User } from './models/User';
+import { SharedService } from './services/shared.service';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -15,24 +17,20 @@ export class AppComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private sharedService: SharedService
   ) { }
 
   selectUser(userId) {
     console.log('set active user to', userId);
     this.selectedUserId = userId;
 
+    // announce the active user to everyone
+    this.sharedService.getUserById(userId);
+
     // if on page displaying user info based on url params (such as profile page), renavigate via new user's id, update route param
-    // TODO: get this to work
-    this.route.paramMap.subscribe((params: ParamMap) => {
-      if (params.get('id')) {
-        this.router.navigate([this.route.pathFromRoot, userId]);
-      }
-    });
-    /* this.route.params.subscribe(params => {
-      if (params.id) {
-        this.router.navigate([this.route.pathFromRoot, userId]);
-      }
-    }); */
+    if (this.route.firstChild.snapshot.params['userId']) {
+      this.router.navigate(['/profile', userId], { relativeTo: this.route.firstChild });
+    }
   }
 }

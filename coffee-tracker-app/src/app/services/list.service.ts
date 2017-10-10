@@ -22,6 +22,13 @@ export class ListService {
           .map(res => <List[]>res.lists);
     }
 
+    public getListForUser(userId):Observable<List[]> {
+      let URI = `${this.serverApi}/forUser/${userId}`;
+
+      return this.http.get(URI)
+        .map(res => res.json());
+  }
+
     public addList(list: List) {
         let URI = `${this.serverApi}/add`;
         let headers = new Headers;
@@ -36,6 +43,20 @@ export class ListService {
         return this.http.post(URI, body , { headers })
           .map(res => res.json());
     }
+
+    public addToList(listId: string, coffees: string[]) {
+      let URI = `${this.serverApi}/addTo`;
+      let headers = new Headers;
+      let body = JSON.stringify({
+        id: listId,
+        coffees
+      });
+
+      headers.append('Content-Type', 'application/json');
+
+      return this.http.post(URI, body , { headers })
+        .map(res => res.json());
+  }
 
     public deleteList(listId: string) {
         let URI = `${this.serverApi}/delete/${listId}`;

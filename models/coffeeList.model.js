@@ -34,6 +34,13 @@ module.exports.getListById = (listId, callback) => {
     CoffeeList.find(query, callback);
 };
 
+// get a specific lists for user
+module.exports.getListByUserId = (userId, callback) => {
+    let query = { ownerId: userId };
+
+    CoffeeList.find(query, callback);
+};
+
 // newList.save is used to insert the document into MongoDB
 module.exports.addList = (newList, callback) => {
     newList.save(callback);
