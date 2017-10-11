@@ -1,15 +1,18 @@
-<div *ngIf="activeUser">Coffees for {{activeUser.displayName}}
-  <button md-button type="button" (click)="requestAddCoffee(activeUser._id)">Add Coffee Break</button>
-</div>
+<div class="wrap">
+  <div class="title" *ngIf="activeUser">Coffees for {{activeUser.displayName}}</div>
 
+  <button class="add-button" md-raised-button color="accent" type="button" (click)="requestAddCoffee(activeUser._id)">Add Coffee Break</button>
 
-<ng-template #errorMessage>There are no coffees for user {{selectedUserId}}, or the user doesn't exist</ng-template>
+  <ng-template #errorMessage>There are no coffees for user {{selectedUserId}}, or the user doesn't exist</ng-template>
 
-<div *ngIf="activeCoffeeList; else errorMessage">
-  <ul>
-    <li *ngFor="let coffee of activeCoffeeList.coffees; let i = index">
-      <div>{{coffee}}</div>
-      <button (click)="requestDeleteCoffee(activeCoffeeList._id, i)">DELETE</button>
-    </li>
-  </ul>
+  <div *ngIf="activeCoffeeList; else errorMessage">
+    <ul class="coffee-list">
+      <li *ngFor="let coffee of activeCoffeeList.coffees; let i = index">
+        <div class="coffee-item">{{coffee}}</div>
+        <button class="delete-button" md-icon-button color="warn" (click)="requestDeleteCoffee(activeCoffeeList._id, i)">
+            <md-icon class="material-icons icon">close</md-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
 </div>

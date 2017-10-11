@@ -1,12 +1,14 @@
 <div>
   <md-toolbar>
-    <a [routerLink]="['/']">{{title}}</a>
+    <button class="home-button" md-fab color="primary" [routerLink]="['/']">
+      <md-icon class="material-icons icon">local_cafe</md-icon>
+    </button>
 
-    <app-user-profile-select (selectRequest)="selectUser($event)" [selectedUserId]="selectedUserId" ></app-user-profile-select>
+    <app-user-profile-select class="app-user-profile-select" (selectRequest)="selectUser($event)" [selectedUserId]="selectedUserId" ></app-user-profile-select>
 
-    <button md-button [routerLink]="['profile', selectedUserId]" [disabled]="selectedUserId ? null : ''">Profile</button>
-    <button md-button [routerLink]="['coffees', selectedUserId]" [disabled]="selectedUserId ? null : ''">Coffees</button>
-    <button md-button [routerLink]="['register']">Register</button>
+    <button class="nav-button" md-raised-button [routerLink]="['profile', selectedUserId]" [disabled]="selectedUserId ? null : ''" color="primary">Profile</button>
+    <button class="nav-button" md-raised-button [routerLink]="['coffees', selectedUserId]" [disabled]="selectedUserId ? null : ''" color="primary">Coffees</button>
+    <button class="nav-button" md-raised-button [routerLink]="['register']" color="primary">Register</button>
 
   </md-toolbar>
 

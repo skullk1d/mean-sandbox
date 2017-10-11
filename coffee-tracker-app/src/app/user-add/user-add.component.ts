@@ -35,7 +35,9 @@ export class UserAddComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.addUserSubscription.unsubscribe();
+    if (this.addUserSubscription) {
+      this.addUserSubscription.unsubscribe();
+    }
   }
 
   onAddUser(res) {

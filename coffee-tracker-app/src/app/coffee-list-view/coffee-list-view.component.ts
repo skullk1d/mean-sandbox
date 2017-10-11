@@ -11,7 +11,7 @@ import 'rxjs/add/operator/switchMap';
 @Component({
   selector: 'app-coffee-list-view',
   templateUrl: './coffee-list-view.component.html',
-  styleUrls: ['./coffee-list-view.component.css']
+  styleUrls: ['./coffee-list-view.component.scss']
 })
 export class CoffeeListViewComponent implements OnInit {
 

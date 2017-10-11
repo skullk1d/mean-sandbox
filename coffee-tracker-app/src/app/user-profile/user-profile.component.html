@@ -1,17 +1,19 @@
-<div *ngIf="activeUser; else errorMessage">
-  Profile for {{activeUser.displayName}}
+<div class="wrap">
+  <div *ngIf="activeUser; else errorMessage">
+    Profile for {{activeUser.displayName}}
 
-  <form (ngSubmit)="onSubmit()">
-      <md-form-field>
-        <input mdInput placeholder="First name" [(ngModel)]="editFirstName" name="first">
-      </md-form-field>
-      <md-form-field>
-          <input mdInput placeholder="Last name" [(ngModel)]="editLastName" name="last">
-      </md-form-field>
+    <form (ngSubmit)="onSubmit()">
+        <md-form-field>
+          <input mdInput placeholder="First name" [(ngModel)]="editFirstName" name="first">
+        </md-form-field>
+        <md-form-field>
+            <input mdInput placeholder="Last name" [(ngModel)]="editLastName" name="last">
+        </md-form-field>
 
-      <button md-button type="submit">Save</button>
-      <button md-button type="button" (click)="requestDeleteUser(activeUser._id)">DELETE</button>
-  </form>
+        <button md-button type="submit">Save</button>
+        <button md-button type="button" (click)="requestDeleteUser(activeUser._id)">DELETE</button>
+    </form>
+  </div>
+
+  <ng-template #errorMessage>Cannot find user {{selectedUserId}}</ng-template>
 </div>
-
-<ng-template #errorMessage>Cannot find user {{selectedUserId}}</ng-template>
