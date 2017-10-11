@@ -15,14 +15,14 @@ export class UserProfileSelectComponent {
   // state
   private users: User[] = [];
   private activeUser: User;
-
-  private subscriptions: Array<[string, Function]> = [
+  private streams: Array<[string, Function]> = [
     ['allUsers', this.onGetAllUsers],
     ['getUser', this.onGetUser],
     ['addUser', this.onAddUser],
     ['deleteUser', this.onDeleteUser],
     ['updateUser', this.onUpdateUser]
-  ]
+  ];
+  private subscriptions: Subscription[] = [];
 
   @Input() selectedUserId: string = '';
   @Output() selectRequest: EventEmitter<string> = new EventEmitter();
@@ -30,9 +30,19 @@ export class UserProfileSelectComponent {
 
   constructor(private userService: UserService) {
     // when anyone asks for all users, adds or removes a user, users list here will also update and propagate to the template
-    this.subscriptions.forEach((streamAndHandler: [string, Function]) => {
-      this.userService.getSubscription(streamAndHandler[0]).subscribe(streamAndHandler[1].bind(this));
+    this.streams.forEach((streamAndHandler: [string, Function]) => {
+      this.subscriptions.push(this.userService.getSubscription(streamAndHandler[0]).subscribe(streamAndHandler[1].bind(this)));
     });
+  }
+
+  // component
+  ngOnInit() {
+    // can avoid initial call using a BehaviorSubject
+    this.loadUsers();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   // events
@@ -94,12 +104,6 @@ export class UserProfileSelectComponent {
     } else {
       console.warn(res.message);
     }
-  }
-
-  // component
-  ngOnInit() {
-    // can avoid initial call using a BehaviorSubject
-    this.loadUsers();
   }
 
   public loadUsers() {
