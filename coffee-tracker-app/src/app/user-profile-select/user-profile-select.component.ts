@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { SharedService } from '../services/shared.service';
 import { User } from '../models/User';
 import { Subscription } from 'rxjs/Subscription';
@@ -26,6 +26,7 @@ export class UserProfileSelectComponent {
 
   @Input() selectedUserId: string = '';
   @Output() selectRequest: EventEmitter<string> = new EventEmitter();
+  @ViewChild('userSelect') userSelect;
 
   constructor(private sharedService: SharedService) {
     // when anyone asks for all users, adds or removes a user, users list here will also update and propagate to the template
@@ -76,6 +77,11 @@ export class UserProfileSelectComponent {
 
       Object.assign(userToReplace, res.updatedUser);
       this.activeUser = userToReplace;
+
+      // update selected display name with forced render (model doesn't update this for some reason)
+      // TODO: force change detection? material component bug HACK
+      this.userSelect.open();
+      this.userSelect.close();
     }
   }
 
