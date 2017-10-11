@@ -32,6 +32,7 @@ export class SharedService {
       getList: new Subject<any>(),
       addCoffeeList: new Subject<any>(),
       addCoffee: new Subject<any>(),
+      deleteFromCoffeeList: new Subject<any>()
     };
 
     // USERS
@@ -114,5 +115,13 @@ export class SharedService {
       );
 
       return this.streams.addCoffee.asObservable();
+    }
+
+    public deleteFromCoffeeList(listId: string, index: number) {
+      this.listService.deleteFromList(listId, index).subscribe(res =>
+        this.streams.deleteFromCoffeeList.next(res)
+      );
+
+      return this.streams.deleteFromCoffeeList.asObservable();
     }
 }

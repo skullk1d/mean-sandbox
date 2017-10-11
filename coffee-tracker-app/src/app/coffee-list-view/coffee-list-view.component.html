@@ -7,8 +7,9 @@
 
 <div *ngIf="activeCoffeeList; else errorMessage">
   <ul>
-    <li *ngFor="let coffee of activeCoffeeList.coffees">
-      {{coffee}}
+    <li *ngFor="let coffee of activeCoffeeList.coffees; let i = index">
+      <div>{{coffee}}</div>
+      <button (click)="requestDeleteCoffee(activeCoffeeList._id, i)">DELETE</button>
     </li>
   </ul>
 </div>

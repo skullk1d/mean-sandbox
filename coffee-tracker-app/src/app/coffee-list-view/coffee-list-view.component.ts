@@ -64,11 +64,23 @@ export class CoffeeListViewComponent implements OnInit {
     }
   }
 
+  requestDeleteCoffee(listId, index) {
+    this.sharedService.deleteFromCoffeeList(
+      this.activeCoffeeList._id,
+      index
+    ).subscribe(this.onDeleteCoffee.bind(this));
+  }
+
   onAddCoffee(res) {
     if (res.success) {
       this.activeCoffeeList = res.list;
       console.log('Added coffee');
     }
+  }
+
+  onDeleteCoffee(res) {
+    this.activeCoffeeList = res.list;
+    console.log('Deleted coffee');
   }
 
   onGetCoffeeList(res) {
