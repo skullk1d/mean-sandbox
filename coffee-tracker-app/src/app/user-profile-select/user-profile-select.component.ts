@@ -84,6 +84,7 @@ export class UserProfileSelectComponent {
     if (res.success) {
       this.activeUser = res.user;
       this.selectedUserId = this.activeUser._id;
+      this.onSelectUser(this.selectedUserId); // sync with app
     }
   }
 
