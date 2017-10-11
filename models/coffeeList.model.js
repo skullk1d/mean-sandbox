@@ -9,7 +9,6 @@ const CoffeeListSchema = mongoose.Schema({
     },
     coffees: {
         type: [String],
-        required: true,
         default: []
     },
     description: String
@@ -50,14 +49,14 @@ module.exports.addList = (newList, callback) => {
 module.exports.addToList = (listId, coffees, callback) => {
     let query = { _id: listId };
 
-    CoffeeList.find(query, (err, res) => {
+    // take first result
+    CoffeeList.findOne(query, (err, res) => {
         if (err) {
             return console.error(err);
         }
 
-        // take first result
-        res[0].coffees.push(coffees);
-        res[0].save(callback);
+        res.coffees.push(coffees);
+        res.save(callback);
     });
 };
 
@@ -65,13 +64,16 @@ module.exports.addToList = (listId, coffees, callback) => {
 module.exports.deleteFromList = (listId, coffeeIdx, callback) => {
     let query = { _id: listId };
 
-    CoffeeList.find(query, (err, res) => {
+    CoffeeList.findOne(query, (err, res) => {
         if (err) {
             return console.error(err);
         }
 
-        res[0].coffees.splice(coffeeIdx, 1);
-        res[0].save(callback);
+        if (res.coffees.length) {
+            res.coffees.splice(coffeeIdx, 1);
+        }
+
+        res.save(callback);
     });
 };
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '../models/User';
-import { SharedService } from '../services/shared.service';
+import { UserService } from '../services/user.service';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -18,16 +18,9 @@ export class UserAddComponent implements OnInit {
   private addUserSubscription: Subscription;
 
   constructor(
-    private sharedService: SharedService,
+    private userService: UserService,
     private router: Router
-  ) {
-    this.addUserSubscription = this.sharedService.getSubscription('addUser').subscribe(res => {
-      // do stuff based on success/fail of add user
-      if (res.success) {
-        this.router.navigate(['/']);
-      }
-    });
-  }
+  ) { }
 
   newFirstName: string = '';
   newLastName: string = '';
@@ -41,12 +34,25 @@ export class UserAddComponent implements OnInit {
     };
   }
 
+  ngOnDestroy() {
+    this.addUserSubscription.unsubscribe();
+  }
+
+  onAddUser(res) {
+    // do stuff based on success/fail of add user
+    if (res.success) {
+      this.router.navigate(['/']);
+    } else {
+      console.warn(res.message);
+    }
+  }
+
   public onSubmit() {
     Object.assign(this.newUser, {
       firstName: this.newFirstName,
       lastName: this.newLastName
     });
 
-    this.sharedService.addUser(this.newUser);
+   this.addUserSubscription = this.userService.addUser(this.newUser).subscribe(this.onAddUser.bind(this));
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { SharedService } from '../services/shared.service';
+import { UserService } from '../services/user.service';
 import { User } from '../models/User';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -28,20 +28,10 @@ export class UserProfileSelectComponent {
   @Output() selectRequest: EventEmitter<string> = new EventEmitter();
   @ViewChild('userSelect') userSelect;
 
-  constructor(private sharedService: SharedService) {
+  constructor(private userService: UserService) {
     // when anyone asks for all users, adds or removes a user, users list here will also update and propagate to the template
-    /* this.allUsersSubscription = this.sharedService.getSubscription('allUsers').subscribe(users => {
-      this.users = users;
-    });
-
-    this.addUserSubscription = this.sharedService.getSubscription('addUser').subscribe(res => {
-      if (res.success) {
-        this.users = this.users.concat(res.newUser);
-      }
-    }); */
-
     this.subscriptions.forEach((streamAndHandler: [string, Function]) => {
-      this.sharedService.getSubscription(streamAndHandler[0]).subscribe(streamAndHandler[1].bind(this));
+      this.userService.getSubscription(streamAndHandler[0]).subscribe(streamAndHandler[1].bind(this));
     });
   }
 
@@ -51,13 +41,19 @@ export class UserProfileSelectComponent {
   }
 
   // subscriptions
-  onGetAllUsers(users) {
-    this.users = users;
+  onGetAllUsers(res) {
+    if (res.success) {
+      this.users = res.users;
+    } else {
+      console.warn(res.message);
+    }
   }
 
   onAddUser(res) {
     if (res.success) {
       this.users = this.users.concat(res.newUser);
+    } else {
+      console.warn(res.message);
     }
   }
 
@@ -67,6 +63,8 @@ export class UserProfileSelectComponent {
       this.users = this.users.filter(user => user._id !== res.userId);
       // reset active user (no longer exists)
       this.onSelectUser('');
+    } else {
+      console.warn(res.message);
     }
   }
 
@@ -82,6 +80,8 @@ export class UserProfileSelectComponent {
       // TODO: force change detection? material component bug HACK
       this.userSelect.open();
       this.userSelect.close();
+    } else {
+      console.warn(res.message);
     }
   }
 
@@ -91,6 +91,8 @@ export class UserProfileSelectComponent {
       this.activeUser = res.user;
       this.selectedUserId = this.activeUser._id;
       this.onSelectUser(this.selectedUserId); // sync with app
+    } else {
+      console.warn(res.message);
     }
   }
 
@@ -102,6 +104,6 @@ export class UserProfileSelectComponent {
 
   public loadUsers() {
     // request all users from server and allow subscription to kick in
-    this.sharedService.getAllUsers();
+    this.userService.getAllUsers();
   }
 }

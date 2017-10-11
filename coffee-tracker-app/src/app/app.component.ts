@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd, Event } from '@angular/router';
 import { User } from './models/User';
-import { SharedService } from './services/shared.service';
+import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -19,13 +19,12 @@ export class AppComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sharedService: SharedService
+    private userService: UserService
   ) { }
 
   ngOnInit() {
     // subscribe to route changes to get current path
     this.router.events.subscribe((event: Event) => {
-      console.log(event);
       if (event instanceof NavigationEnd ) {
         this.currentUrl = event.url;
       }
@@ -42,7 +41,7 @@ export class AppComponent {
     this.selectedUserId = userId;
 
     // get new data and announce the active user to everyone
-    this.sharedService.getUserById(userId);
+    this.userService.getUserById(userId);
 
     // if on page displaying user info based on url params (such as profile page), renavigate via new user's id
     if (this.route.firstChild.snapshot.params['userId']) {

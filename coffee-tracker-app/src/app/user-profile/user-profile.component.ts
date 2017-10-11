@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { SharedService } from '../services/shared.service';
+import { UserService } from '../services/user.service';
 import { User } from '../models/User';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -18,11 +18,12 @@ export class UserProfileComponent implements OnInit {
   // state
   private selectedUserId: string = '';
   private activeUser: User;
-  private subscriptions: Array<[string, Function]> = [
+  private streams: Array<[string, Function]> = [
     ['getUser', this.onGetUser],
     ['deleteUser', this.onDeleteUser],
     ['updateUser', this.onUpdateUser]
-  ]
+  ];
+  private subscriptions: Subscription[] = [];
 
   // activeUser$: Observable<any>;
 
@@ -32,10 +33,13 @@ export class UserProfileComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sharedService: SharedService
+    private userService: UserService
   ) {
-    this.subscriptions.forEach((streamAndHandler: [string, Function]) => {
-      this.sharedService.getSubscription(streamAndHandler[0]).subscribe(streamAndHandler[1].bind(this));
+    this.streams.forEach((streamAndHandler: [string, Function]) => {
+      this.subscriptions.push(
+        this.userService.getSubscription(streamAndHandler[0])
+        .subscribe(streamAndHandler[1].bind(this))
+      );
     });
   }
 
@@ -44,8 +48,12 @@ export class UserProfileComponent implements OnInit {
     // TODO: explore RxJs BehaviorSubjects to get initial value efficiently
     this.route.paramMap.switchMap((params: ParamMap) => {
       this.selectedUserId = params.get('userId');
-      return this.sharedService.getUserById(this.selectedUserId); // must return Observable
+      return this.userService.getUserById(this.selectedUserId); // must return Observable
     }).subscribe(this.onGetUser.bind(this));
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   onSubmit() {
@@ -58,20 +66,21 @@ export class UserProfileComponent implements OnInit {
   }
 
   requestDeleteUser(userId) {
-    this.sharedService.deleteUser(userId);
+    this.userService.deleteUser(userId);
   }
 
   // subscriptions
   onDeleteUser(res) {
     if (res.success) {
-      console.log('Deleted user', res.userId);
       // route to home page
-      this.router.navigate(['/']);
+      this.router.navigateByUrl('/');
+    } else {
+      console.warn(res.message);
     }
   }
 
   requestUpdateUser(updatedUser) {
-    this.sharedService.updateUser(updatedUser);
+    this.userService.updateUser(updatedUser);
   }
 
   onUpdateUser(res) {
@@ -79,8 +88,8 @@ export class UserProfileComponent implements OnInit {
       this.activeUser = res.updatedUser;
       this.editFirstName = this.activeUser.firstName;
       this.editLastName = this.activeUser.lastName;
-
-      console.log(this, 'Updated user', res.updatedUser);
+    } else {
+      console.warn(res.message);
     }
   }
 
@@ -92,6 +101,8 @@ export class UserProfileComponent implements OnInit {
       this.editLastName = this.activeUser.lastName;
 
       this.selectedUserId = this.activeUser._id;
+    } else {
+      console.warn(res.message);
     }
   }
 }

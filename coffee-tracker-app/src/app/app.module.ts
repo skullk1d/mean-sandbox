@@ -15,7 +15,6 @@ import { CoffeeListViewComponent } from './coffee-list-view/coffee-list-view.com
 
 import { ListService } from './services/list.service';
 import { UserService } from './services/user.service';
-import { SharedService } from './services/shared.service';
 import { UserAddComponent } from './user-add/user-add.component';
 
 const appRoutes: Routes = [
@@ -51,7 +50,7 @@ const appRoutes: Routes = [
       { enableTracing: true } // <-- debugging purposes only
     )
   ],
-  providers: [ ListService, UserService, SharedService ],
+  providers: [ ListService, UserService ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }
