@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { User } from '../models/User'
 import 'rxjs/add/operator/map';
 
@@ -13,52 +14,54 @@ export class UserService {
     // TODO: config this
     private serverApi= 'http://localhost:3000/user';
 
-    private streams = {
-      allUsers: new Subject<any>(),
-      addUser: new Subject<any>(),
-      deleteUser: new Subject<any>(),
-      updateUser: new Subject<any>(),
-      getUser: new Subject<any>()
-    };
+    private allUsers: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
+    private activeUser: Subject<User> = new Subject<User>();
 
-    // return observables with initial result to invoker and also stream to all subscribers
-    public getSubscription(streamName: string): Observable<any> {
-      // return the stream or, if not found, warn but do not break
-      // provide subscription to anyone who wants to sync with user data
-      const stream = this.streams[streamName] || new Subject<any>();
-
-      if (!this.streams[streamName]) {
-        console.warn(streamName, 'Stream unavailable');
-      }
-
-      return stream.asObservable();
-    }
+    // expose observables
+    public readonly allUsers$: Observable<User[]> = this.allUsers.asObservable();
+    public readonly activeUser$: Observable<User> = this.activeUser.asObservable();
 
     // GET
-    public getAllUsers(): Observable<any> {
+    public getAllUsers(): Observable<User[]> {
       let URI = `${this.serverApi}/all`;
 
-      const observable = this.http.get(URI)
+      const observable: Observable<any> = this.http.get(URI)
         .map(res => res.json());
 
-      observable.subscribe(res => this.streams.allUsers.next(res));
+      observable.subscribe(res => {
+        let users: User[] = this.allUsers.getValue();
+
+        if (res.success) {
+          users = res.users;
+
+          this.allUsers.next(users);
+        } else {
+          console.warn(res.message);
+        }
+      });
 
       return observable;
     }
 
-    public getUserById(userId): Observable<any> {
+    public getUserById(userId): Observable<User> {
       let URI = `${this.serverApi}/${userId}`;
 
-      const observable = this.http.get(URI)
+      const observable: Observable<any> = this.http.get(URI)
         .map(res => res.json());
 
-      observable.subscribe(res => this.streams.getUser.next(res));
+      observable.subscribe(res => {
+        if (res.success) {
+          this.activeUser.next(res.user);
+        } else {
+          console.warn(res.message);
+        }
+      });
 
       return observable;
     }
 
     // POST
-    public addUser(user: User): Observable<any> {
+    public addUser(user: User): Observable<User> {
       let URI = `${this.serverApi}/add`;
       let headers = new Headers;
       let body = JSON.stringify({
@@ -68,15 +71,26 @@ export class UserService {
 
       headers.append('Content-Type', 'application/json');
 
-      const observable = this.http.post(URI, body, { headers })
+      const observable: Observable<any> = this.http.post(URI, body, { headers })
         .map(res => res.json());
 
-      observable.subscribe(res => this.streams.addUser.next(res));
+      observable.subscribe(res => {
+        let users: User[] = this.allUsers.getValue();
+
+        if (res.success) {
+          users.push(res.newUser);
+
+          this.allUsers.next(users);
+          this.activeUser.next(res.newUser);
+        } else {
+          console.warn(res.message);
+        }
+      });
 
       return observable;
     }
 
-    public updateUser(updatedUser: User): Observable<any> {
+    public updateUser(updatedUser: User): Observable<User> {
       // expect updatedUser to have _id
       let URI = `${this.serverApi}/update`;
       let headers = new Headers;
@@ -84,16 +98,28 @@ export class UserService {
 
       headers.append('Content-Type', 'application/json');
 
-      const observable = this.http.post(URI, body , { headers })
+      const observable: Observable<any> = this.http.post(URI, body , { headers })
         .map(res => res.json());
 
-      observable.subscribe(res => this.streams.updateUser.next(res));
+      observable.subscribe(res => {
+        let users: User[] = this.allUsers.getValue();
+
+        if (res.success) {
+          let userToReplace = users.find(user => user._id === res.updatedUser._id);
+          Object.assign(userToReplace, res.updatedUser);
+
+          this.allUsers.next(users);
+          this.activeUser.next(res.updatedUser);
+        } else {
+          console.warn(res.message);
+        }
+      });
 
       return observable;
     }
 
     // DELETE
-    public deleteUser(userId: string): Observable<any> {
+    public deleteUser(userId: string): Observable<User[]> {
       let URI = `${this.serverApi}/delete/${userId}`;
       let headers = new Headers;
 
@@ -102,7 +128,17 @@ export class UserService {
       const observable = this.http.delete(URI, { headers })
         .map(res => res.json());
 
-      observable.subscribe(res => this.streams.deleteUser.next(res));
+      observable.subscribe(res => {
+        let users: User[] = this.allUsers.getValue();
+
+        if (res.success) {
+          users = users.filter(user => user._id !== res.userId);
+
+          this.allUsers.next(users);
+        } else {
+          console.warn(res.message);
+        }
+      });
 
       return observable;
     }

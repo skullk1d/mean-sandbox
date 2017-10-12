@@ -27,10 +27,10 @@ export class UserAddComponent implements OnInit {
 
   ngOnInit() {
     this.newUser = {
-        _id: '',
-        displayName: '',
-        firstName: '',
-        lastName: ''
+      _id: '',
+      displayName: '',
+      firstName: '',
+      lastName: ''
     };
   }
 
@@ -40,13 +40,8 @@ export class UserAddComponent implements OnInit {
     }
   }
 
-  onAddUser(res) {
-    // do stuff based on success/fail of add user
-    if (res.success) {
-      this.router.navigate(['/']);
-    } else {
-      console.warn(res.message);
-    }
+  onAddUser() {
+    this.router.navigate(['/']);
   }
 
   public onSubmit() {

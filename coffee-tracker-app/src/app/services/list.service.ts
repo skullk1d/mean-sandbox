@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { List } from '../models/List'
 import 'rxjs/add/operator/map';
 
@@ -14,67 +15,85 @@ export class ListService {
   // TODO: config this
   private serverApi= 'http://localhost:3000/coffeeList';
 
-  private streams = {
-    allCoffeeLists: new Subject<any>(),
-    getCoffeeList: new Subject<any>(),
-    addCoffeeList: new Subject<any>(),
-    addCoffee: new Subject<any>(),
-    deleteCoffeeList: new Subject<any>(),
-    deleteCoffee: new Subject<any>()
-  };
+  private allLists: BehaviorSubject<List[]> = new BehaviorSubject<List[]>([]);
+  private activeList: Subject<List> = new Subject<List>();
 
-  public getSubscription(streamName: string): Observable<any> {
-    const stream = this.streams[streamName] || new Subject<any>();
+  // expose observables
+  public readonly allLists$: Observable<List[]> = this.allLists.asObservable();
+  public readonly activeList$: Observable<List> = this.activeList.asObservable();
 
-    if (!this.streams[streamName]) {
-      console.warn(streamName, 'Stream unavailable');
-    }
+  // GET
+  public getAllLists(): Observable<List[]> {
+    let URI = `${this.serverApi}/all`;
 
-    return stream.asObservable();
-  }
-
-  public getAllLists():Observable<List[]> {
-      let URI = `${this.serverApi}/all`;
-
-      const observable = this.http.get(URI)
-        .map(res => res.json());
-
-      observable.subscribe(res => this.streams.allCoffeeLists.next(res));
-
-      return observable;
-  }
-
-  public getListForUser(userId):Observable<List[]> {
-    let URI = `${this.serverApi}/forUser/${userId}`;
-
-    const observable = this.http.get(URI)
+    const observable: Observable<any> = this.http.get(URI)
       .map(res => res.json());
 
-    observable.subscribe(res => this.streams.getCoffeeList.next(res));
+    observable.subscribe(res => {
+      let lists: List[] = this.allLists.getValue();
+
+      if (res.success) {
+        lists = res.lists;
+
+        this.allLists.next(lists);
+      } else {
+        console.warn(res.message);
+      }
+    });
 
     return observable;
   }
 
-  public addList(list: List) {
-      let URI = `${this.serverApi}/add`;
-      let headers = new Headers;
-      let body = JSON.stringify({
-        ownerId: list.ownerId,
-        description: list.description,
-        coffees: list.coffees
-      });
+  public getListForUser(userId): Observable<List> {
+    let URI = `${this.serverApi}/forUser/${userId}`;
 
-      headers.append('Content-Type', 'application/json');
+    const observable: Observable<any> = this.http.get(URI)
+      .map(res => res.json());
 
-      const observable = this.http.post(URI, body , { headers })
-        .map(res => res.json());
+    observable.subscribe(res => {
+      if (res.success) {
+        // service may return multiple lists for a user but for now we support only one list per user
+        this.activeList.next(res.lists[0]);
+      } else {
+        console.warn(res.message);
+      }
+    });
 
-      observable.subscribe(res => this.streams.addCoffeeList.next(res));
-
-      return observable;
+    return observable;
   }
 
-  public addToList(listId: string, coffees: string[]) {
+  // POST
+  public addList(list: List): Observable<List[]> {
+    let URI = `${this.serverApi}/add`;
+    let headers = new Headers;
+    let body = JSON.stringify({
+      ownerId: list.ownerId,
+      description: list.description,
+      coffees: list.coffees
+    });
+
+    headers.append('Content-Type', 'application/json');
+
+    const observable: Observable<any> = this.http.post(URI, body , { headers })
+      .map(res => res.json());
+
+    observable.subscribe(res => {
+      let lists: List[] = this.allLists.getValue();
+
+      if (res.success) {
+        lists.push(res.list);
+
+        this.allLists.next(lists);
+        this.activeList.next(res.list);
+      } else {
+        console.warn(res.message);
+      }
+    });
+
+    return observable;
+  }
+
+  public addToList(listId: string, coffees: string[]): Observable<List> {
     let URI = `${this.serverApi}/addTo`;
     let headers = new Headers;
     let body = JSON.stringify({
@@ -84,44 +103,67 @@ export class ListService {
 
     headers.append('Content-Type', 'application/json');
 
-    const observable = this.http.post(URI, body , { headers })
+    const observable: Observable<any> = this.http.post(URI, body , { headers })
       .map(res => res.json());
 
-    observable.subscribe(res => this.streams.addCoffee.next(res));
+    observable.subscribe(res => {
+      if (res.success) {
+        this.activeList.next(res.list);
+      } else {
+        console.warn(res.message);
+      }
+    });
 
     return observable;
   }
 
-    public deleteList(listId: string) {
-        let URI = `${this.serverApi}/delete/${listId}`;
-        let headers = new Headers;
-
-        headers.append('Content-Type', 'application/json');
-
-        const observable = this.http.delete(URI, { headers })
-          .map(res => res.json());
-
-        observable.subscribe(res => this.streams.deleteCoffeeList.next(res));
-
-        return observable;
-    }
-
-    public deleteFromList(listId: string, index: number) {
-      let URI = `${this.serverApi}/deleteFrom`;
+  // DELETE
+  public deleteList(listId: string): Observable<List[]> {
+      let URI = `${this.serverApi}/delete/${listId}`;
       let headers = new Headers;
-      let body = JSON.stringify({
-        id: listId,
-        idx: index
-      });
 
       headers.append('Content-Type', 'application/json');
 
-      // NOTE: in delete request body is optional
-      const observable = this.http.delete(URI, { headers, body })
+      const observable: Observable<any> = this.http.delete(URI, { headers })
         .map(res => res.json());
 
-      observable.subscribe(res => this.streams.deleteCoffee.next(res));
+      observable.subscribe(res => {
+        let lists: List[] = this.allLists.getValue();
+
+        if (res.success) {
+          lists = lists.filter(list => list._id !== res.listId);
+
+          this.allLists.next(lists);
+        } else {
+          console.warn(res.message);
+        }
+      });
 
       return observable;
-    }
+  }
+
+  public deleteFromList(listId: string, index: number): Observable<List> {
+    let URI = `${this.serverApi}/deleteFrom`;
+    let headers = new Headers;
+    let body = JSON.stringify({
+      id: listId,
+      idx: index
+    });
+
+    headers.append('Content-Type', 'application/json');
+
+    // NOTE: in delete request body is optional
+    const observable: Observable<any> = this.http.delete(URI, { headers, body })
+      .map(res => res.json());
+
+    observable.subscribe(res => {
+      if (res.success) {
+        this.activeList.next(res.list);
+      } else {
+        console.warn(res.message);
+      }
+    });
+
+    return observable;
+  }
 }

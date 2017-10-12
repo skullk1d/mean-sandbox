@@ -17,21 +17,11 @@ export class CoffeeListViewComponent implements OnInit {
 
   // state
   private selectedUserId: string = '';
-  private activeUser: User;
+  private activeUser$: Observable<User>;
+  private activeCoffeeList$: Observable<List>;
+
   private activeCoffeeList: List;
-  private listStreams: Array<[string, Function]> = [
-    ['getCoffeeList', this.onGetCoffeeList],
-    ['addCoffeeList', this.onAddCoffee],
-    ['addCoffee', this.onAddCoffee],
-    ['deleteCoffee', this.onDeleteCoffee]
-  ];
-  private userStreams: Array<[string, Function]> = [
-    ['getUser', this.onGetUser]
-  ];
-
-  private subscriptions: Subscription[] = [];
-
-  // activeCoffeeList$: Observable<any>;
+  private activeCoffeeListSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,42 +29,25 @@ export class CoffeeListViewComponent implements OnInit {
     private listService: ListService,
     private userService: UserService
   ) {
-    this.listStreams.forEach((streamAndHandler: [string, Function]) => {
-      this.subscriptions.push(
-        this.listService.getSubscription(streamAndHandler[0])
-        .subscribe(streamAndHandler[1].bind(this))
-      );
-    });
+    this.activeUser$ = userService.activeUser$;
+    this.activeCoffeeList$ = listService.activeList$;
 
-    this.userStreams.forEach((streamAndHandler: [string, Function]) => {
-      this.subscriptions.push(
-        this.userService.getSubscription(streamAndHandler[0])
-        .subscribe(streamAndHandler[1].bind(this))
-      );
-    });
+    this.activeCoffeeListSub = this.activeCoffeeList$.subscribe(this.onGetCoffeeList.bind(this));
   }
 
   ngOnInit() {
     this.route.paramMap.switchMap((params: ParamMap) => {
       this.selectedUserId = params.get('userId');
-      if (!this.activeUser) {
-        this.userService.getUserById(this.selectedUserId); // must return Observable
-      }
-      return this.listService.getListForUser(this.selectedUserId);
+      this.userService.getUserById(this.selectedUserId); // must return Observable
+      this.listService.getListForUser(this.selectedUserId);
+
+      // observable from service already handles success, so res mapped to List type
+      return this.activeCoffeeList$;
     }).subscribe(this.onGetCoffeeList.bind(this));
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
-  onGetUser(res) {
-    if (res.success) {
-       // init our model of edited names when we get res.user
-      this.activeUser = res.user;
-    } else {
-      console.warn(res.message);
-    }
+    this.activeCoffeeListSub.unsubscribe();
   }
 
   requestAddCoffee(userId) {
@@ -99,28 +72,7 @@ export class CoffeeListViewComponent implements OnInit {
     );
   }
 
-  onAddCoffee(res) {
-    if (res.success) {
-      this.activeCoffeeList = res.list;
-    } else {
-      console.warn(res.message);
-    }
-  }
-
-  onDeleteCoffee(res) {
-    if (res.success) {
-      this.activeCoffeeList = res.list;
-    } else {
-      console.warn(res.message);
-    }
-  }
-
-  onGetCoffeeList(res) {
-    if (res.success) {
-      // support only one list at a time for now
-      this.activeCoffeeList = res.lists[0];
-    } else {
-      console.warn(res.message);
-    }
+  onGetCoffeeList(list: List) {
+    this.activeCoffeeList = list;
   }
 }

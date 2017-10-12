@@ -1,6 +1,6 @@
 <div class="wrap">
-  <div *ngIf="activeUser; else errorMessage">
-    Profile for {{activeUser.displayName}}
+  <div *ngIf="activeUser$ | async as user; else errorMessage">
+    Profile for {{user.displayName}}
 
     <form (ngSubmit)="onSubmit()">
         <md-form-field>
@@ -11,7 +11,7 @@
         </md-form-field>
 
         <button md-button type="submit">Save</button>
-        <button md-button type="button" (click)="requestDeleteUser(activeUser._id)">DELETE</button>
+        <button md-button type="button" (click)="requestDeleteUser(user._id)">DELETE</button>
     </form>
   </div>
 

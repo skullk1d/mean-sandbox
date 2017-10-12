@@ -5,7 +5,9 @@
   (change)="onSelectUser(selectedUserId)"
   [(ngModel)]="selectedUserId"
 >
-  <md-option *ngFor="let user of users" [value]="user._id">
-    {{user.displayName}}
-  </md-option>
+  <div *ngIf="allUsers$ | async as users">
+    <md-option *ngFor="let user of users" [value]="user._id">
+      {{user.displayName}}
+    </md-option>
+  </div>
 </md-select>
