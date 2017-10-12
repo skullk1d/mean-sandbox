@@ -17,6 +17,7 @@ export class UserProfileSelectComponent {
   private activeUser$: Observable<User>;
 
   private activeUserSub: Subscription;
+  private deletedUserIdSub: Subscription;
 
   @Input() selectedUserId: string = '';
   @Output() selectRequest: EventEmitter<string> = new EventEmitter();
@@ -27,6 +28,7 @@ export class UserProfileSelectComponent {
     this.activeUser$ = userService.activeUser$;
 
     this.activeUserSub = this.activeUser$.subscribe(this.onGetUser.bind(this));
+    this.deletedUserIdSub = this.userService.deletedUserId$.subscribe(this.onDeleteUser.bind(this));
   }
 
   // component
@@ -35,7 +37,10 @@ export class UserProfileSelectComponent {
   }
 
   ngOnDestroy() {
-    this.activeUserSub.unsubscribe();
+    [
+      this.activeUserSub,
+      this.deletedUserIdSub
+    ].forEach(sub => sub.unsubscribe());
   }
 
   // events
@@ -53,6 +58,12 @@ export class UserProfileSelectComponent {
     // TODO: force change detection? material component bug HACK
     this.userSelect.open();
     this.userSelect.close();
+  }
+
+  onDeleteUser(deletedUserId) {
+    if (this.selectedUserId === deletedUserId) {
+      this.onSelectUser('');
+    }
   }
 
   public loadUsers() {

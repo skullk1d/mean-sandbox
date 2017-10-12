@@ -16,10 +16,12 @@ export class UserService {
 
     private allUsers: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
     private activeUser: Subject<User> = new Subject<User>();
+    private deletedUserId: Subject<string> = new Subject<string>();
 
     // expose observables
     public readonly allUsers$: Observable<User[]> = this.allUsers.asObservable();
     public readonly activeUser$: Observable<User> = this.activeUser.asObservable();
+    public readonly deletedUserId$: Observable<string> = this.deletedUserId.asObservable();
 
     // GET
     public getAllUsers(): Observable<User[]> {
@@ -135,6 +137,7 @@ export class UserService {
           users = users.filter(user => user._id !== res.userId);
 
           this.allUsers.next(users);
+          this.deletedUserId.next(res.userId);
         } else {
           console.warn(res.message);
         }
