@@ -2,13 +2,13 @@
     Register a new user
 
     <form (ngSubmit)="onSubmit()">
-        <md-form-field>
-            <input mdInput placeholder="First name" [(ngModel)]="newFirstName" name="first">
-        </md-form-field>
-        <md-form-field>
-            <input mdInput placeholder="Last name" [(ngModel)]="newLastName" name="last">
-        </md-form-field>
+        <mat-form-field>
+            <input matInput placeholder="First name" [(ngModel)]="newFirstName" name="first">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput placeholder="Last name" [(ngModel)]="newLastName" name="last">
+        </mat-form-field>
 
-        <button md-button type="submit">Add</button>
+        <button mat-raised-button type="submit" color="accent">Add</button>
     </form>
 </div>

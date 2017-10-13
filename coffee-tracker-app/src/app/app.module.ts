@@ -4,7 +4,14 @@ import { HttpModule } from '@angular/http';
 import { FormsModule} from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 
-import { MatToolbarModule, MatButtonModule, MatSelectModule } from '@angular/material';
+import {
+  MatToolbarModule,
+  MatButtonModule,
+  MatSelectModule,
+  MatOptionModule,
+  MatFormFieldModule,
+  MatInputModule
+} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
@@ -44,6 +51,9 @@ const appRoutes: Routes = [
     MatToolbarModule,
     MatButtonModule,
     MatSelectModule,
+    MatOptionModule,
+    MatFormFieldModule,
+    MatInputModule,
 
     RouterModule.forRoot(
       appRoutes,

@@ -1,7 +1,7 @@
 <div class="wrap" *ngIf="activeUser$ | async as user">
   <div class="title">Coffees for {{user.displayName}}</div>
 
-  <button class="add-button" md-raised-button color="accent" type="button" (click)="requestAddCoffee(user._id)">Add Coffee Break</button>
+  <button class="add-button" mat-raised-button color="accent" type="button" (click)="requestAddCoffee(user._id)">Add Coffee Break</button>
 
   <ng-template #errorMessage>There are no coffees for user {{selectedUserId}}, or the user doesn't exist</ng-template>
 
@@ -9,8 +9,8 @@
     <ul class="coffee-list">
       <li *ngFor="let coffee of coffeeList.coffees; let i = index">
         <div class="coffee-item">{{coffee}}</div>
-        <button class="delete-button" md-icon-button color="warn" (click)="requestDeleteCoffee(coffeeList._id, i)">
-            <md-icon class="material-icons icon">close</md-icon>
+        <button class="delete-button" mat-icon-button color="warn" (click)="requestDeleteCoffee(coffeeList._id, i)">
+            <mat-icon class="material-icons icon">close</mat-icon>
         </button>
       </li>
     </ul>

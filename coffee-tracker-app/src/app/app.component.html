@@ -1,16 +1,16 @@
 <div>
-  <md-toolbar>
-    <button class="home-button" md-fab color="primary" [routerLink]="['/']">
-      <md-icon class="material-icons icon">local_cafe</md-icon>
+  <mat-toolbar>
+    <button class="home-button" mat-fab color="primary" [routerLink]="['/']">
+      <mat-icon class="material-icons icon">local_cafe</mat-icon>
     </button>
 
     <app-user-profile-select class="app-user-profile-select" (selectRequest)="selectUser($event)" [selectedUserId]="selectedUserId" ></app-user-profile-select>
 
-    <button class="nav-button" md-raised-button [routerLink]="['profile', selectedUserId]" [disabled]="selectedUserId ? null : ''" color="primary">Profile</button>
-    <button class="nav-button" md-raised-button [routerLink]="['coffees', selectedUserId]" [disabled]="selectedUserId ? null : ''" color="primary">Coffees</button>
-    <button class="nav-button" md-raised-button [routerLink]="['register']" color="primary">Register</button>
+    <button class="nav-button" mat-raised-button [routerLink]="['profile', selectedUserId]" [disabled]="selectedUserId ? null : ''" color="primary">Profile</button>
+    <button class="nav-button" mat-raised-button [routerLink]="['coffees', selectedUserId]" [disabled]="selectedUserId ? null : ''" color="primary">Coffees</button>
+    <button class="nav-button" mat-raised-button [routerLink]="['register']" color="primary">Register</button>
 
-  </md-toolbar>
+  </mat-toolbar>
 
   <!-- "primary" outlet: top-level routes loaded here -->
   <router-outlet></router-outlet>
