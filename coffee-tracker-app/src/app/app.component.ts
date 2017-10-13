@@ -41,7 +41,9 @@ export class AppComponent {
     this.selectedUserId = userId;
 
     // get new data and announce the active user to everyone
-    this.userService.getUserById(userId);
+    if (userId) {
+      this.userService.getUserById(userId);
+    }
 
     // if on page displaying user info based on url params (such as profile page), renavigate via new user's id
     if (this.route.firstChild.snapshot.params['userId']) {

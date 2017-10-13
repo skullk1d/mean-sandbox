@@ -21,33 +21,23 @@ export class CoffeeListViewComponent implements OnInit {
   private activeCoffeeList$: Observable<List>;
 
   private activeCoffeeList: List;
-  private activeCoffeeListSub: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private listService: ListService,
     private userService: UserService
-  ) {
-    this.activeUser$ = userService.activeUser$;
-    this.activeCoffeeList$ = listService.activeList$;
-
-    this.activeCoffeeListSub = this.activeCoffeeList$.subscribe(this.onGetCoffeeList.bind(this));
-  }
+  ) { }
 
   ngOnInit() {
     this.route.paramMap.switchMap((params: ParamMap) => {
       this.selectedUserId = params.get('userId');
-      this.userService.getUserById(this.selectedUserId); // must return Observable
-      this.listService.getListForUser(this.selectedUserId);
+      this.activeUser$ = this.userService.getUserById(this.selectedUserId); // must return Observable
+      this.activeCoffeeList$ = this.listService.getListForUser(this.selectedUserId);
 
       // observable from service already handles success, so res mapped to List type
       return this.activeCoffeeList$;
     }).subscribe(this.onGetCoffeeList.bind(this));
-  }
-
-  ngOnDestroy() {
-    this.activeCoffeeListSub.unsubscribe();
   }
 
   requestAddCoffee(userId) {

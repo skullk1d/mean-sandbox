@@ -15,10 +15,8 @@ export class UserProfileComponent implements OnInit {
   // requests and displays the active user's data, builds a dirty user object and requests to update a user's data
   // requests to delete a user
 
-  private allUsers$: Observable<User[]>;
   private activeUser$: Observable<User>;
 
-  private activeUserSub: Subscription;
   private deleteUserSub: Subscription;
 
   private selectedUserId: string = '';
@@ -29,28 +27,22 @@ export class UserProfileComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService
-  ) {
-    this.allUsers$ = this.userService.allUsers$;
-    this.activeUser$ = this.userService.activeUser$;
-
-    this.activeUserSub = this.activeUser$.subscribe(this.onGetUser.bind(this));
-  }
+  ) { }
 
   ngOnInit() {
     // if we landed here without active user data, get it ourselves by "subscribing" to url params
     this.route.paramMap.switchMap((params: ParamMap) => {
       this.selectedUserId = params.get('userId');
-      this.userService.getUserById(this.selectedUserId); // must return Observable
+      this.activeUser$ = this.userService.getUserById(this.selectedUserId); // must return Observable
 
       return this.activeUser$;
     }).subscribe(this.onGetUser.bind(this));
   }
 
   ngOnDestroy() {
-    [
-      this.activeUserSub,
-      this.deleteUserSub
-    ].forEach(sub => sub && sub.unsubscribe());
+    if (this.deleteUserSub) {
+      this.deleteUserSub.unsubscribe();
+    }
   }
 
   onSubmit() {
@@ -66,7 +58,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   onDeleteUser() {
-    this.router.navigateByUrl('/');
+    this.router.navigate(['/']);
   }
 
   requestUpdateUser(updatedUser: User) {

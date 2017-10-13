@@ -1,9 +1,12 @@
-<div class="wrap" *ngIf="activeUser$ | async as user">
-  <div class="title">Coffees for {{user.displayName}}</div>
+<div class="wrap">
 
-  <button class="add-button" mat-raised-button color="accent" type="button" (click)="requestAddCoffee(user._id)">Add Coffee Break</button>
+  <div *ngIf="activeUser$ | async as user">
+    <div class="title">Coffees for {{user.displayName}}</div>
 
-  <ng-template #errorMessage>There are no coffees for user {{selectedUserId}}, or the user doesn't exist</ng-template>
+    <button class="add-button" mat-raised-button color="accent" type="button" (click)="requestAddCoffee(user._id)">Add Coffee Break</button>
+
+    <ng-template #errorMessage>There are no coffees for user {{selectedUserId}}, or the user doesn't exist</ng-template>
+  </div>
 
   <div *ngIf="activeCoffeeList$ | async as coffeeList; else errorMessage">
     <ul class="coffee-list">
@@ -15,4 +18,5 @@
       </li>
     </ul>
   </div>
+
 </div>

@@ -1,10 +1,14 @@
+
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { User } from '../models/User'
 import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/throw';
+import 'rxjs/add/operator/catch';
 
 @Injectable()
 export class UserService {
@@ -27,39 +31,39 @@ export class UserService {
     public getAllUsers(): Observable<User[]> {
       let URI = `${this.serverApi}/all`;
 
-      const observable: Observable<any> = this.http.get(URI)
-        .map(res => res.json());
+      this.http.get(URI)
+        .map(res => res.json())
+        .catch(this.throwError)
+        .subscribe(res => {
+          let users: User[] = this.allUsers.getValue();
 
-      observable.subscribe(res => {
-        let users: User[] = this.allUsers.getValue();
+          if (res.success) {
+            users = res.users;
 
-        if (res.success) {
-          users = res.users;
+            this.allUsers.next(users);
+          } else {
+            console.warn(res.message);
+          }
+        });
 
-          this.allUsers.next(users);
-        } else {
-          console.warn(res.message);
-        }
-      });
-
-      return observable;
+      return this.allUsers$;
     }
 
     public getUserById(userId): Observable<User> {
       let URI = `${this.serverApi}/${userId}`;
 
-      const observable: Observable<any> = this.http.get(URI)
-        .map(res => res.json());
+      this.http.get(URI)
+        .map(res => res.json())
+        .catch(this.throwError)
+        .subscribe(res => {
+          if (res.success) {
+            this.activeUser.next(res.user);
+          } else {
+            console.warn(res.message);
+          }
+        });
 
-      observable.subscribe(res => {
-        if (res.success) {
-          this.activeUser.next(res.user);
-        } else {
-          console.warn(res.message);
-        }
-      });
-
-      return observable;
+      return this.activeUser$;
     }
 
     // POST
@@ -73,23 +77,23 @@ export class UserService {
 
       headers.append('Content-Type', 'application/json');
 
-      const observable: Observable<any> = this.http.post(URI, body, { headers })
-        .map(res => res.json());
+      this.http.post(URI, body, { headers })
+        .map(res => res.json())
+        .catch(this.throwError)
+        .subscribe(res => {
+          let users: User[] = this.allUsers.getValue();
 
-      observable.subscribe(res => {
-        let users: User[] = this.allUsers.getValue();
+          if (res.success) {
+            users.push(res.newUser);
 
-        if (res.success) {
-          users.push(res.newUser);
+            this.allUsers.next(users);
+            this.activeUser.next(res.newUser);
+          } else {
+            console.warn(res.message);
+          }
+        });
 
-          this.allUsers.next(users);
-          this.activeUser.next(res.newUser);
-        } else {
-          console.warn(res.message);
-        }
-      });
-
-      return observable;
+      return this.activeUser$;
     }
 
     public updateUser(updatedUser: User): Observable<User> {
@@ -100,49 +104,55 @@ export class UserService {
 
       headers.append('Content-Type', 'application/json');
 
-      const observable: Observable<any> = this.http.post(URI, body , { headers })
-        .map(res => res.json());
+      this.http.post(URI, body , { headers })
+        .map(res => res.json())
+        .catch(this.throwError)
+        .subscribe(res => {
+          let users: User[] = this.allUsers.getValue();
 
-      observable.subscribe(res => {
-        let users: User[] = this.allUsers.getValue();
+          if (res.success) {
+            let userToReplace = users.find(user => user._id === res.updatedUser._id);
+            Object.assign(userToReplace, res.updatedUser);
 
-        if (res.success) {
-          let userToReplace = users.find(user => user._id === res.updatedUser._id);
-          Object.assign(userToReplace, res.updatedUser);
+            this.allUsers.next(users);
+            this.activeUser.next(res.updatedUser);
+          } else {
+            console.warn(res.message);
+          }
+        });
 
-          this.allUsers.next(users);
-          this.activeUser.next(res.updatedUser);
-        } else {
-          console.warn(res.message);
-        }
-      });
-
-      return observable;
+      return this.activeUser$;
     }
 
     // DELETE
-    public deleteUser(userId: string): Observable<User[]> {
+    public deleteUser(userId: string): Observable<string> {
       let URI = `${this.serverApi}/delete/${userId}`;
       let headers = new Headers;
 
       headers.append('Content-Type', 'application/json');
 
       const observable = this.http.delete(URI, { headers })
-        .map(res => res.json());
+        .map(res => res.json())
+        .catch(this.throwError)
+        .subscribe(res => {
+          let users: User[] = this.allUsers.getValue();
 
-      observable.subscribe(res => {
-        let users: User[] = this.allUsers.getValue();
+          if (res.success) {
+            users = users.filter(user => user._id !== res.userId);
 
-        if (res.success) {
-          users = users.filter(user => user._id !== res.userId);
+            this.allUsers.next(users);
+            this.deletedUserId.next(res.userId);
+          } else {
+            console.warn(res.message);
+          }
+        });
 
-          this.allUsers.next(users);
-          this.deletedUserId.next(res.userId);
-        } else {
-          console.warn(res.message);
-        }
-      });
+      return this.deletedUserId$;
+    }
 
-      return observable;
+    public throwError(res: Response): ErrorObservable {
+      // handles standard http errors
+      console.error(res);
+      return Observable.throw(res || 'Server error');
     }
 }

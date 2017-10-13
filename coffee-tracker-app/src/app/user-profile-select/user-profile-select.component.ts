@@ -24,7 +24,7 @@ export class UserProfileSelectComponent {
   @ViewChild('userSelect') userSelect;
 
   constructor(private userService: UserService) {
-    this.allUsers$ = userService.allUsers$;
+    this.allUsers$ = userService.getAllUsers();
     this.activeUser$ = userService.activeUser$;
 
     this.activeUserSub = this.activeUser$.subscribe(this.onGetUser.bind(this));
@@ -32,10 +32,6 @@ export class UserProfileSelectComponent {
   }
 
   // component
-  ngOnInit() {
-    this.loadUsers();
-  }
-
   ngOnDestroy() {
     [
       this.activeUserSub,
@@ -64,10 +60,5 @@ export class UserProfileSelectComponent {
     if (this.selectedUserId === deletedUserId) {
       this.onSelectUser('');
     }
-  }
-
-  public loadUsers() {
-    // request all users from server and allow subscription to kick in
-    this.userService.getAllUsers();
   }
 }
