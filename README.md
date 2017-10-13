@@ -12,15 +12,15 @@ Start the server
 npm start
 ```
 
-Install dependencies for client app from inside Angluar application
+Install dependencies for client app from inside Angluar application in _coffee-tracker-app_ directory
 ```
 cd coffee-tracker-app
 npm install
 ```
 
-Start the client from inside _coffee-tracker-app_
+Start the client
 ```
-ng serve
+npm start
 ```
 
 If all is well, you should see
